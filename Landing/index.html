@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching Skill Not Found</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Reset & Variables */
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #0284c7;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --danger: #e11d48;
+            --footer-bg: #0b1120;
+            --card-dark: #1e293b;
+            --card-border: #e2e8f0;
+            --purple: #6366f1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--light); color: #333; line-height: 1.6; overflow-x: hidden; }
+        
+        /* Layout & Typography */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        h1, h2, h3 { color: var(--dark); }
+        h2 { text-align: center; font-size: 2.5rem; margin: 60px 0 40px; position: relative; padding-bottom: 15px; }
+        h2::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 80px; height: 4px; background: var(--primary); border-radius: 2px; }
+        
+        /* Navigation */
+        nav { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; transition: all 0.3s ease; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; height: 80px; transition: height 0.3s ease; } 
+        nav.scrolled .nav-container { height: 60px; }
+        
+        /* LOGO STYLES */
+        .logo { display: flex; align-items: center; text-decoration: none; }
+        .logo img { height: 50px; width: auto; max-width: 250px; object-fit: contain; transition: height 0.3s ease; }
+        nav.scrolled .logo img { height: 40px; }
+        .logo span.fallback-text { font-size: 1.5rem; font-weight: 800; color: var(--dark); display: none; }
+        .logo span.fallback-text span { color: var(--primary); }
+        
+        .nav-links { display: flex; gap: 25px; }
+        .nav-links a { color: var(--dark); text-decoration: none; font-weight: 500; transition: color 0.3s; position: relative; }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-links a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 0; background-color: var(--primary); transition: width 0.3s ease; }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* Hero Section */
+        .hero { background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3') center/cover; color: white; padding: 150px 20px; text-align: center; position: relative; }
+        .hero h1 { color: white; font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; animation: fadeInDown 1s ease-out; }
+        .hero p { font-size: 1.4rem; max-width: 800px; margin: 0 auto 30px; font-style: italic; color: #cbd5e1; min-height: 2.8rem; }
+        .btn { display: inline-block; padding: 14px 35px; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.3s ease; animation: fadeInUp 1s ease-out 0.5s both; position: relative; overflow: hidden; }
+        .btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s ease; }
+        .btn:hover::before { left: 100%; }
+        .btn:hover { background: var(--secondary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        /* Grid Layouts */
+        .grid { display: grid; gap: 30px; }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+
+        /* Course Cards */
+        .course-card { background: white; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; border: 1px solid var(--card-border); transition: all 0.4s ease; display: flex; flex-direction: column; opacity: 0; transform: translateY(30px); }
+        .course-card.visible { opacity: 1; transform: translateY(0); }
+        .course-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 15px 30px rgba(14, 165, 233, 0.15); }
+        .course-card i { font-size: 3rem; color: var(--primary); margin-bottom: 10px; display: inline-block; transition: transform 0.3s ease; }
+        .course-card:hover i { transform: scale(1.1); }
+        .course-card h3 { font-size: 1.5rem; margin-bottom: 15px; }
+        .course-card .duration { font-size: 0.85rem; font-weight: bold; color: #b45309; background: #fef3c7; padding: 5px 12px; border-radius: 20px; display: inline-block; margin-bottom: 15px; align-self: flex-start; }
+        .course-card ul { text-align: left; margin: 15px 0 25px 20px; flex-grow: 1; }
+        .course-card li { margin-bottom: 8px; font-size: 0.95rem; }
+        .course-card .btn { width: 100%; margin-top: auto; text-align: center; animation: none; }
+
+        /* TEAM SECTION STYLES */
+        .team-section { background-color: var(--light); padding: 100px 0; }
+        .team-header { max-width: 1200px; margin: 0 auto 50px; padding: 0 20px; text-align: center; opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .team-header.visible { opacity: 1; transform: translateY(0); }
+        .team-subtitle { color: var(--primary); text-transform: uppercase; font-size: 0.9rem; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 10px; display: block; }
+        .team-title { color: var(--dark); font-size: 3.2rem; font-weight: 800; line-height: 1.15; margin-bottom: 20px; border: none; }
+        .team-title::after { display: none; }
+        .team-desc { color: #475569; font-size: 1.2rem; max-width: 700px; margin: 0 auto; }
+        
+        .team-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 40px; padding: 0 20px; }
+        
+        .team-card-new { background-color: white; border: 1px solid var(--card-border); border-radius: 16px; padding: 50px 40px; display: flex; flex-direction: column; gap: 20px; align-items: center; text-align: center; transition: all 0.4s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.05); opacity: 0; transform: scale(0.95); }
+        .team-card-new.visible { opacity: 1; transform: scale(1); }
+        .team-card-new:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-color: var(--primary); }
+        
+        .trainer-portrait { width: 150px; height: 150px; border-radius: 50%; background-color: #f1f5f9; border: 4px solid var(--primary); flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin-bottom: 10px; transition: transform 0.4s ease; }
+        .team-card-new:hover .trainer-portrait { transform: rotate(5deg) scale(1.05); }
+        .trainer-portrait img { width: 100%; height: 100%; object-fit: cover; }
+        .trainer-fallback { font-weight: bold; font-size: 1.1rem; color: #64748b; text-align: center; line-height: 1.2; word-break: break-all; padding: 5px; }
+
+        .trainer-content { width: 100%; }
+        .trainer-name { font-size: 2.2rem; font-weight: 800; color: var(--dark); margin-bottom: 12px; }
+        .trainer-role-badge { font-size: 1rem; font-weight: 700; color: #b45309; background: #fef3c7; padding: 6px 18px; border-radius: 20px; display: inline-block; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(251, 191, 36, 0.4); }
+        .trainer-bio { color: #475569; font-size: 1.25rem; line-height: 1.7; margin-bottom: 25px; }
+        .trainer-stat { font-size: 1.1rem; font-weight: 800; color: var(--danger); text-transform: uppercase; letter-spacing: 0.5px; background: #ffe4e6; padding: 8px 20px; border-radius: 8px; display: inline-block; }
+
+        /* REVIEWS SECTION STYLES */
+        .reviews-section { background-color: var(--light); padding: 60px 0 100px; }
+        .reviews-header { max-width: 1200px; margin: 0 auto 40px; padding: 0 20px; text-align: left; opacity: 0; transform: translateX(-30px); transition: all 0.6s ease; }
+        .reviews-header.visible { opacity: 1; transform: translateX(0); }
+        .reviews-subtitle { color: var(--purple); text-transform: uppercase; font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 10px; display: block; }
+        .reviews-title { color: var(--dark); font-size: 3rem; font-weight: 800; line-height: 1.15; margin-bottom: 20px; border: none; text-align: left; }
+        .reviews-title::after { display: none; }
+        .reviews-desc { color: #64748b; font-size: 1.1rem; max-width: 700px; margin-bottom: 40px; }
+
+        .reviews-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; padding: 0 20px; }
+        
+        .review-card-modern { background: white; padding: 40px 30px; border-radius: 16px; border: 1px solid var(--card-border); display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: all 0.4s ease; opacity: 0; transform: translateY(30px); }
+        .review-card-modern.visible { opacity: 1; transform: translateY(0); }
+        .review-card-modern:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.1); border-color: var(--purple); }
+        
+        .stars { color: #f59e0b; font-size: 0.9rem; margin-bottom: 20px; display: flex; gap: 4px; }
+        .review-text-modern { font-size: 1.05rem; color: #334155; line-height: 1.7; flex-grow: 1; margin-bottom: 30px; font-style: italic; }
+        
+        .reviewer-info { display: flex; align-items: center; gap: 15px; }
+        .reviewer-avatar { width: 45px; height: 45px; border-radius: 50%; background-color: #e0e7ff; color: var(--purple); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; flex-shrink: 0; transition: transform 0.3s ease; }
+        .review-card-modern:hover .reviewer-avatar { transform: scale(1.1) rotate(10deg); background-color: var(--purple); color: white; }
+        .reviewer-details { display: flex; flex-direction: column; }
+        .reviewer-name { font-weight: 700; color: var(--dark); font-size: 1rem; }
+        .reviewer-role { color: #64748b; font-size: 0.85rem; }
+
+        /* Footer */
+        footer { background: var(--footer-bg); color: #f8fafc; padding: 80px 20px 30px; margin-top: 40px; font-size: 0.95rem; }
+        .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; margin-bottom: 50px; }
+        
+        .footer-col h3 { color: white; font-size: 1.2rem; margin-bottom: 25px; font-weight: bold; position: relative; display: inline-block; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .footer-col h3.no-border { border-bottom: none; padding-bottom: 0; }
+        .footer-col p { color: #cbd5e1; line-height: 1.6; }
+        
+        .footer-contact-list { list-style: none; padding: 0; }
+        .footer-contact-list li { margin-bottom: 15px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 15px; transition: transform 0.2s ease; }
+        .footer-contact-list li:hover { transform: translateX(5px); color: white; }
+        .footer-contact-list i { color: #e11d48; margin-top: 4px; font-size: 1.1rem; width: 20px; text-align: center; }
+        .footer-contact-list .fa-clock { color: #94a3b8; }
+        
+        .footer-socials { display: flex; flex-wrap: wrap; gap: 12px; }
+        .social-pill { display: inline-block; padding: 10px 20px; border: 1px solid #334155; border-radius: 8px; color: #cbd5e1; text-decoration: none; transition: all 0.3s; font-size: 0.95rem; }
+        .social-pill:hover { border-color: var(--primary); color: white; background: rgba(14, 165, 233, 0.1); transform: translateY(-3px); }
+        
+        .footer-bottom { max-width: 1200px; margin: 0 auto; border-top: 1px solid #1e293b; padding-top: 25px; color: #64748b; font-size: 0.9rem; text-align: center; }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Typing cursor */
+        .cursor { display: inline-block; width: 3px; height: 1.2em; background-color: var(--primary); margin-left: 5px; vertical-align: middle; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.5rem; }
+            .hero { padding: 100px 20px; }
+            .grid-2, .team-grid, .reviews-grid { grid-template-columns: 1fr; }
+            .reviews-title { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <img src="logo.svg" alt="Teaching Skill Not Found Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span class="fallback-text">Zero to Zero<span>IT</span></span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="#courses">Courses</a>
+                <a href="#team">Our "UnProfessionals"</a>
+                <a href="#reviews">Reviews</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <h1>If You Need To Learn Anything, This Institute Is Not For You</h1>
+            <!-- The span ID is used for the typewriter effect -->
+            <p><span id="typewriter-text"></span><span class="cursor"></span></p>
+            
+            <!-- Added Disclaimer -->
+            <p style="font-size: 0.95rem; color: #fca5a5; margin-bottom: 15px; font-style: normal;">
+                * We are not responsible for your wasted time & money.
+            </p>
+            
+            <button class="btn" onclick="scamAlert()">Enroll at Your Own Risk</button>
+        </div>
+    </header>
+
+    <!-- Courses Section -->
+    <section id="courses" class="container" style="padding-top: 80px;">
+        <h2 style="text-align: center; border-bottom: none;" class="animate-on-scroll">Our Courses (Ready to Waste Your Time and Money)</h2>
+        <div class="grid grid-3">
+            <!-- MS Office Applications -->
+            <div class="course-card animate-on-scroll" data-delay="100">
+                <span class="duration">Duration: Until You Give Up</span>
+                <i class="fas fa-file-word"></i>
+                <h3>MS Office Applications</h3>
+                <p style="margin-bottom: 15px;">Join this course and you will master the most powerful skills in all of computing:</p>
+                <p style="margin-bottom: 10px; font-weight: bold; background: var(--dark); color: white; padding: 5px; border-radius: 5px; display: inline-block; align-self: flex-start;">Ctrl C + Ctrl V</p>
+                <ul>
+                    <li>Word: How to open Word (Day 1 to Day 14)</li>
+                    <li>Excel: Staring at boxes with confidence</li>
+                    <li>PowerPoint: Adding 47 animations to one slide</li>
+                </ul>
+                <button class="btn" onclick="scamAlert()">Copy Seat, Paste Fee</button>
+            </div>
+
+            <!-- Web Design -->
+            <div class="course-card animate-on-scroll" data-delay="200">
+                <span class="duration">Duration: Whenever the Power Returns</span>
+                <i class="fas fa-laptop-code"></i>
+                <h3>Web Design</h3>
+                <p>We teach you to create a website without any coding. This website was also created without any knowledge of coding..</p>
+                <ul>
+                    <li>Drag. Drop. Pray.</li>
+                    <li>Make buttons that look clickable but aren't</li>
+                    <li>Learn the sacred art of "Inspect Element" to edit your friend's name on Facebook</li>
+                </ul>
+                <button class="btn" onclick="scamAlert()">Build a Site With No Code</button>
+            </div>
+
+            <!-- AI-Driven Freelancing -->
+            <div class="course-card animate-on-scroll" data-delay="300">
+                <span class="duration">Duration:Until You Get A Job</span>
+                <i class="fas fa-brain"></i>
+                <h3>AI-Driven Freelancing</h3>
+                <p>We teach you how to create a new folder. Yes, that is the entire AI curriculum. Yes, you will pay for it.</p>
+                <ul>
+                    <li>Right click -> New -> Folder (live demo)</li>
+                    <li>Naming it "Clients" and waiting for clients</li>
+                    <li>Asking ChatGPT to do the actual work</li>
+                </ul>
+                <button class="btn" onclick="scamAlert()">Create My Folder</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEAM SECTION -->
+    <section id="team" class="team-section">
+        <div class="team-header animate-on-scroll">
+            <span class="team-subtitle">Meet Our "UnProfessionals"</span>
+            <h2 class="team-title">Two Experts. Absolutely No Evidence.</h2>
+            <p class="team-desc">THEY DO NOT KNOW WHICH COURSES THEY TEACH.</p>
+        </div>
+        
+        <div class="team-grid">
+            <!-- 1st Trainer: AMANAT SATTAR -->
+            <div class="team-card-new animate-on-scroll" data-delay="100">
+                <div class="trainer-portrait">
+                    <img src="img.png" alt="AMANAT SATTAR" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <span class="trainer-fallback" style="display:none;">img.png</span>
+                </div>
+                <div class="trainer-content">
+                    <h3 class="trainer-name">AMANAT SATTAR</h3>
+                    <span class="trainer-role-badge">Senior Trainer - Dept. of Everything</span>
+                    <p class="trainer-bio">Has 0 years of practical experience and still isn't sure which course he teaches.</p>
+                    <span class="trainer-stat">Experience: 0 years - Confidence: 1000%</span>
+                </div>
+            </div>
+
+            <!-- 2nd Trainer: JAYANTO HALDER -->
+            <div class="team-card-new animate-on-scroll" data-delay="200">
+                <div class="trainer-portrait">
+                    <img src="img2.png" alt="JAYANTO HALDER" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <span class="trainer-fallback" style="display:none;">img2.png</span>
+                </div>
+                <div class="trainer-content">
+                    <h3 class="trainer-name">JAYANTO HALDER</h3>
+                    <span class="trainer-role-badge">Assistant Trainer - Prompt Copy-Paster</span>
+                    <p class="trainer-bio">Specializes in shutting down computers. Special skills include forgetting passwords.</p>
+                    <span class="trainer-stat">Experience: Still buffering...</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS SECTION -->
+    <section id="reviews" class="reviews-section">
+        <div class="reviews-header animate-on-scroll">
+            <span class="reviews-subtitle">What Our Students "Say"</span>
+            <h2 class="reviews-title">Five Stars. Zero Expectations.</h2>
+            <p class="reviews-desc">We value honest feedback. That's why we wrote these reviews ourselves.</p>
+        </div>
+
+        <div class="reviews-grid">
+            <!-- Review 1 -->
+            <div class="review-card-modern animate-on-scroll" data-delay="100">
+                <div class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="review-text-modern">"Best institute ever. I learned nothing, so I had nothing to forget. Very efficient."</p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">T</div>
+                    <div class="reviewer-details">
+                        <span class="reviewer-name">Tanvir, Alumni</span>
+                        <span class="reviewer-role">Currently unemployed (proudly)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 2 -->
+            <div class="review-card-modern animate-on-scroll" data-delay="200">
+                <div class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="review-text-modern">"The certificate arrived on time. The knowledge is still in delivery."</p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">M</div>
+                    <div class="reviewer-details">
+                        <span class="reviewer-name">Mahin, Graduate</span>
+                        <span class="reviewer-role">Tracking ID: lost</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 3 -->
+            <div class="review-card-modern animate-on-scroll" data-delay="300">
+                <div class="stars">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                </div>
+                <p class="review-text-modern">"I came to learn AI freelancing. Now I can create a folder in under 10 seconds. Upwork hasn't called yet, but I remain hopeful."</p>
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">T</div>
+                    <div class="reviewer-details">
+                        <span class="reviewer-name">Tanvir A.</span>
+                        <span class="reviewer-role">Folder Management Specialist</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer id="contact">
+        <div class="footer-grid">
+            <!-- Column 1 -->
+            <div class="footer-col">
+                <h3 class="no-border">Teaching Skill Not Found</h3>
+                <p>"Welcome to the institute where students teach the trainers."</p>
+            </div>
+            
+            <!-- Column 2 -->
+            <div class="footer-col">
+                <h3>Contact (We Will Not Reply)</h3>
+                <ul class="footer-contact-list">
+                    <li><i class="fas fa-map-marker-alt" style="color: #db2777;"></i> <span>Room 404, Page Not Found Plaza,<br>Beside the Closed Shop</span></li>
+                    <li><i class="fas fa-phone-alt" style="color: #ef4444;"></i> <span>+880 1234-567890 (Switched off)</span></li>
+                    <li><i class="fas fa-envelope" style="color: #94a3b8;"></i> <span>nothing.learned@zerotozero.edu</span></li>
+                    <li><i class="far fa-clock" style="color: #94a3b8;"></i>  <span>Open whenever the trainer arrives</span></li>
+                </ul>
+            </div>
+            
+            <!-- Column 3 -->
+            <div class="footer-col">
+                <h3>Follow Us (We Post Nothing)</h3>
+                <div class="footer-socials">
+                    <a href="#" class="social-pill"><i class="fab fa-facebook-f" style="margin-right: 8px;"></i>Facebook</a>
+                    <a href="#" class="social-pill"><i class="fab fa-youtube" style="margin-right: 8px;"></i>YouTube</a>
+                    <a href="#" class="social-pill"><i class="fab fa-linkedin-in" style="margin-right: 8px;"></i>LinkedIn</a>
+                    <a href="#" class="social-pill"><i class="fab fa-instagram" style="margin-right: 8px;"></i>Instagram</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Copyright Bar -->
+        <div class="footer-bottom">
+            <p>&copy; 2026 Teaching Skill Not Found. All rights reserved, all knowledge missing. Certificate valid only as a coaster.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        // 1. Funny Alert function
+        function scamAlert() {
+            alert("Payment Successful!\n\nJust kidding. But seriously, turn back now before they ask you to fix their router.");
+        }
+
+        // 2. Navbar shrink on scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // 3. Typewriter Effect for Hero Subtitle
+        const textToType = 'We will master you on how to use CTRL+C  &  CTRL+V';
+        const typeWriterElement = document.getElementById('typewriter-text');
+        let i = 0;
+
+        function typeWriter() {
+            if (i < textToType.length) {
+                typeWriterElement.innerHTML += textToType.charAt(i);
+                i++;
+                setTimeout(typeWriter, 50); // Typing speed
+            }
+        }
+        
+        // Start typing after a short delay so user sees it happen
+        setTimeout(typeWriter, 800);
+
+        // 4. Scroll Animation Observer (Intersection Observer)
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15 // Trigger when 15% of the element is visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Check if element has a data-delay attribute for staggered animations
+                        const delay = entry.target.getAttribute('data-delay');
+                        if (delay) {
+                            setTimeout(() => {
+                                entry.target.classList.add('visible');
+                            }, parseInt(delay));
+                        } else {
+                            entry.target.classList.add('visible');
+                        }
+                        // Stop observing once animated
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            // Select all elements that should animate on scroll
+            const animatedElements = document.querySelectorAll('.animate-on-scroll');
+            animatedElements.forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
